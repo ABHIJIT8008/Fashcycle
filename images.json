@@ -1,0 +1,82 @@
+[
+  {
+    "src": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000",
+    "label": "Hero Image"
+  },
+  {
+    "src": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000",
+    "label": "Hero Image"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/391d38cd-3461-4536-bff5-e0ab59f17ed3.webp",
+    "label": "saree"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/8018e31e-e8bf-4992-bae9-1ac3a4b78ffb.webp",
+    "label": "anarkali"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/c2aa2ca5-acb6-468a-b1bb-0f447c96baf0.webp",
+    "label": "gown"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/e67c5ee7-653c-428c-af81-8ea752adc26f.webp",
+    "label": "lehanga"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/5eb98e09-583f-4a1f-834e-75d2153a8b3a.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/ca87284d-15f5-474f-a2ba-729b4f5112ad.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/e6801b62-56a3-4b0e-80eb-88582d12313d.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/63a053f9-8c71-48d4-8a82-a4cca736550b.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/b2b8f641-ed69-4e8d-a29b-0db3b3c7c276.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/54a87396-a7fb-45bc-9a59-fd38f4898fb5.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/6c966f72-3f29-49a0-a5e7-02a4e2922b4d.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/ccfa7ad7-f30a-4a1f-877d-0af43a7b86aa.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/c49087d6-575b-4924-9ab1-1fcb2ca03187.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://fashcycle-official-media.s3.amazonaws.com/image/456873a3-30a2-4181-8f0e-bef59f2faf71.webp",
+    "label": "productImg"
+  },
+  {
+    "src": "https://images.unsplash.com/photo-1523381294911-8d3cead13475?q=80&w=2070",
+    "label": "Sustainable Fashion"
+  },
+  {
+    "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000",
+    "label": "Priya Sharma"
+  },
+  {
+    "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000",
+    "label": "Rahul Verma"
+  },
+  {
+    "src": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=1000",
+    "label": "Ananya Patel"
+  }
+]
