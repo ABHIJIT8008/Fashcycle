@@ -51,36 +51,36 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white font-body text-text-dark">
       {/* NAVBAR */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-3' : 'bg-white/90 backdrop-blur-md py-5'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-3 text-text-dark' : 'bg-transparent py-5 text-white'}`}>
         <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between">
           <a href="#" className="flex-shrink-0">
-            <Logo />
+            <Logo className={!scrolled ? 'bg-white/90 p-1.5 rounded-lg shadow-sm' : ''} />
           </a>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#how-it-works" className="text-sm font-medium hover:text-accent transition-colors">How It Works</a>
-            <a href="https://www.fashcycle.com/sustainability" className="text-sm font-medium hover:text-accent transition-colors">Sustainability</a>
-            <a href="https://www.fashcycle.com/about-us" className="text-sm font-medium hover:text-accent transition-colors">About Us</a>
-            <a href="#store-owners" className="text-sm font-medium hover:text-accent transition-colors">For Store Owners</a>
+            <a href="#how-it-works" className="text-sm font-medium hover:opacity-70 transition-opacity">How It Works</a>
+            <a href="https://www.fashcycle.com/sustainability" className="text-sm font-medium hover:opacity-70 transition-opacity">Sustainability</a>
+            <a href="https://www.fashcycle.com/about-us" className="text-sm font-medium hover:opacity-70 transition-opacity">About Us</a>
+            <a href="#store-owners" className="text-sm font-medium hover:opacity-70 transition-opacity">For Store Owners</a>
           </div>
 
           <div className="hidden md:block">
-            <button onClick={scrollToDownload} className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-semibold uppercase tracking-wide hover:bg-accent transition-colors">
+            <button onClick={scrollToDownload} className={`px-6 py-2.5 rounded-lg text-sm font-semibold uppercase tracking-wide transition-colors ${scrolled ? 'bg-primary text-white hover:bg-accent' : 'bg-white text-primary hover:bg-gray-100'}`}>
               Download App
             </button>
           </div>
 
           <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={28} className="text-primary" /> : <Menu size={28} className="text-primary" />}
+            {isMobileMenuOpen ? <X size={28} className={scrolled ? 'text-primary' : 'text-white'} /> : <Menu size={28} className={scrolled ? 'text-primary' : 'text-white'} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 flex flex-col py-4 px-6 gap-4">
+          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 flex flex-col py-4 px-6 gap-4 text-text-dark">
             <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-gray-50">How It Works</a>
-            <a href="https://www.fashcycle.com/sustainability" className="text-base font-medium py-2 border-b border-gray-50">Sustainability</a>
-            <a href="https://www.fashcycle.com/about-us" className="text-base font-medium py-2 border-b border-gray-50">About Us</a>
+            <a href="https://www.fashcycle.com/sustainability" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-gray-50">Sustainability</a>
+            <a href="https://www.fashcycle.com/about-us" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-gray-50">About Us</a>
             <a href="#store-owners" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-gray-50">For Store Owners</a>
             <button onClick={scrollToDownload} className="mt-4 bg-primary text-white px-6 py-3 rounded-lg text-sm font-semibold uppercase tracking-wide w-full">
               Download App
@@ -96,7 +96,7 @@ export default function App() {
           <img 
             src="https://fashcycle-official-media.s3.amazonaws.com/image/e67c5ee7-653c-428c-af81-8ea752adc26f.webp" 
             alt="Indian occasion wear fashion rental" 
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-[center_15%] md:object-[center_top]"
           />
           <div className="absolute inset-0 bg-[#1b3226]/60"></div>
         </div>
