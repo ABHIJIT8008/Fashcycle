@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu, X, CheckCircle2, Search, Calendar, CreditCard, RefreshCcw,
   Package, BarChart3, Leaf, Droplets, RefreshCw, ArrowRight, MapPin,
-  Phone, MessageSquare
+  Phone, MessageSquare, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import { useContent } from './contexts/ContentContext';
 
 const InstagramIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>);
 const FacebookIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>);
@@ -28,11 +29,85 @@ const AppStoreBadge = () => (
   </a>
 );
 
+/* ── Store Owner Image Slider ── */
+function StoreOwnerSlider({ slides }) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!slides || slides.length <= 1) return;
+    const timer = setInterval(() => setCurrent(c => (c + 1) % slides.length), 4500);
+    return () => clearInterval(timer);
+  }, [slides?.length]);
+
+  if (!slides || slides.length === 0) {
+    return (
+      <div className="h-56 flex flex-col items-center justify-center text-white/40 bg-white/5 rounded-xl border border-white/10 gap-2">
+        <BarChart3 size={32} className="opacity-40" />
+        <p className="text-sm">Product showcase images coming soon.</p>
+      </div>
+    );
+  }
+
+  const prev = () => setCurrent(c => (c - 1 + slides.length) % slides.length);
+  const next = () => setCurrent(c => (c + 1) % slides.length);
+
+  return (
+    <div className="relative rounded-xl overflow-hidden">
+      <div className="relative h-64">
+        {slides.map((slide, idx) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-700 ${idx === current ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          >
+            {slide.image
+              ? <img src={slide.image} alt={slide.productName} className="w-full h-full object-cover" />
+              : <div className="w-full h-full bg-white/10" />
+            }
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            <div className="absolute bottom-4 left-5 right-5">
+              {slide.productName && (
+                <p className="text-white font-heading font-semibold text-lg leading-tight">{slide.productName}</p>
+              )}
+              {slide.revenue && (
+                <p className="text-yellow-300 font-bold text-2xl mt-0.5">{slide.revenue}</p>
+              )}
+              {slide.caption && (
+                <p className="text-gray-300 text-sm mt-1">{slide.caption}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {slides.length > 1 && (
+        <>
+          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors z-10">
+            <ChevronLeft size={18} />
+          </button>
+          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors z-10">
+            <ChevronRight size={18} />
+          </button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {slides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrent(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${idx === current ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [showContactUs, setShowContactUs] = useState(false);
+  const { content } = useContent();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -102,7 +177,7 @@ export default function App() {
       <section className="relative pt-24 md:pt-0 md:h-screen min-h-[600px] flex items-center">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://fashcycle-official-media.s3.amazonaws.com/image/e67c5ee7-653c-428c-af81-8ea752adc26f.webp"
+            src={content.hero.backgroundImage}
             alt="Indian occasion wear fashion rental"
             className="w-full h-full object-cover object-[center_15%] md:object-[center_top]"
           />
@@ -198,7 +273,7 @@ export default function App() {
 
               <div className="relative w-48 md:w-64 h-[400px] md:h-[500px] rounded-[2rem] border-[8px] border-gray-900 bg-gray-900 shadow-2xl overflow-hidden flex-shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-500 group/mockup">
                 <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-xl w-32 mx-auto z-20"></div>
-                <img src="https://fashcycle-official-media.s3.amazonaws.com/image/c49087d6-575b-4924-9ab1-1fcb2ca03187.webp" alt="App Discover" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
+                <img src={content.howItWorks.phone1Image} alt="App Discover" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
                   <Search size={48} className="text-white mb-4 drop-shadow-lg" />
                   <p className="text-white font-semibold text-sm drop-shadow-md">Discover Outfits</p>
@@ -208,7 +283,7 @@ export default function App() {
 
               <div className="relative w-48 md:w-64 h-[400px] md:h-[500px] rounded-[2rem] border-[8px] border-gray-900 bg-gray-900 shadow-2xl overflow-hidden flex-shrink-0 transform translate-y-8 hover:translate-y-4 transition-transform duration-500 group/mockup">
                 <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-xl w-32 mx-auto z-20"></div>
-                <img src="https://fashcycle-official-media.s3.amazonaws.com/image/ca87284d-15f5-474f-a2ba-729b4f5112ad.webp" alt="App Booking" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
+                <img src={content.howItWorks.phone2Image} alt="App Booking" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
                   <Calendar size={48} className="text-white mb-4 drop-shadow-lg" />
                   <p className="text-white font-semibold text-sm drop-shadow-md">Book Real-time</p>
@@ -218,7 +293,7 @@ export default function App() {
 
               <div className="hidden md:block relative w-64 h-[500px] rounded-[2rem] border-[8px] border-gray-900 bg-gray-900 shadow-2xl overflow-hidden flex-shrink-0 transform rotate-3 hover:rotate-0 transition-transform duration-500 group/mockup">
                 <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-xl w-32 mx-auto z-20"></div>
-                <img src="https://fashcycle-official-media.s3.amazonaws.com/image/8018e31e-e8bf-4992-bae9-1ac3a4b78ffb.webp" alt="App Return" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
+                <img src={content.howItWorks.phone3Image} alt="App Return" className="w-full h-full object-cover opacity-60 group-hover/mockup:opacity-80 transition-opacity duration-300" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-10">
                   <RefreshCcw size={48} className="text-white mb-4 drop-shadow-lg" />
                   <p className="text-white font-semibold text-sm drop-shadow-md">Wear & Return</p>
@@ -244,23 +319,8 @@ export default function App() {
           </div>
 
           <div className="flex overflow-x-auto pb-8 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-4 gap-6 snap-x hide-scrollbar">
-            {[
-              { title: "Lehengas",       img: "https://fashcycle-official-media.s3.amazonaws.com/image/e67c5ee7-653c-428c-af81-8ea752adc26f.webp" },
-              { title: "Sarees",         img: "https://fashcycle-official-media.s3.amazonaws.com/image/391d38cd-3461-4536-bff5-e0ab59f17ed3.webp" },
-              { title: "Gowns",          img: "https://fashcycle-official-media.s3.amazonaws.com/image/c2aa2ca5-acb6-468a-b1bb-0f447c96baf0.webp" },
-              { title: "Anarkalis",      img: "https://fashcycle-official-media.s3.amazonaws.com/image/8018e31e-e8bf-4992-bae9-1ac3a4b78ffb.webp" },
-              { title: "Sharara Sets",   img: "https://fashcycle-official-media.s3.amazonaws.com/image/5eb98e09-583f-4a1f-834e-75d2153a8b3a.webp" },
-              { title: "Suits",          img: "https://fashcycle-official-media.s3.amazonaws.com/image/ca87284d-15f5-474f-a2ba-729b4f5112ad.webp" },
-              { title: "Western Wear",   img: "https://fashcycle-official-media.s3.amazonaws.com/image/e6801b62-56a3-4b0e-80eb-88582d12313d.webp" },
-              { title: "Crop Tops",      img: "https://fashcycle-official-media.s3.amazonaws.com/image/e6801b62-56a3-4b0e-80eb-88582d12313d.webp" },
-              { title: "Sherwani",       img: "https://fashcycle-official-media.s3.amazonaws.com/image/e67c5ee7-653c-428c-af81-8ea752adc26f.webp" },
-              { title: "Azkan",          img: "https://fashcycle-official-media.s3.amazonaws.com/image/8018e31e-e8bf-4992-bae9-1ac3a4b78ffb.webp" },
-              { title: "Jacket",         img: "https://fashcycle-official-media.s3.amazonaws.com/image/ca87284d-15f5-474f-a2ba-729b4f5112ad.webp" },
-              { title: "Indo-Western Men", img: "https://fashcycle-official-media.s3.amazonaws.com/image/5eb98e09-583f-4a1f-834e-75d2153a8b3a.webp" },
-              { title: "Jodhpuri",       img: "https://fashcycle-official-media.s3.amazonaws.com/image/391d38cd-3461-4536-bff5-e0ab59f17ed3.webp" },
-              { title: "Blazer",         img: "https://fashcycle-official-media.s3.amazonaws.com/image/c2aa2ca5-acb6-468a-b1bb-0f447c96baf0.webp" },
-            ].map((cat, idx) => (
-              <div key={idx} className="relative w-64 md:w-auto h-80 flex-shrink-0 snap-start rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
+            {(content.categories.items || []).map((cat, idx) => (
+              <div key={cat.id || idx} className="relative w-64 md:w-auto h-80 flex-shrink-0 snap-start rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
                 <img src={cat.img} alt={cat.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1b3226]/90 via-[#1b3226]/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full p-6 text-white">
@@ -285,11 +345,21 @@ export default function App() {
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-primary mb-4">Our Trusted Partners</h2>
           <p className="text-gray-600 mb-12 max-w-2xl mx-auto">Fashcycle works with local rental stores across Indore and beyond.</p>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="w-32 h-20 md:w-40 md:h-24 bg-gray-200/60 rounded-xl flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
-                <span className="text-sm font-semibold text-gray-500 uppercase tracking-widest">Partner Logo</span>
-              </div>
-            ))}
+            {(content.partners.items || []).length > 0
+              ? (content.partners.items).map((partner, idx) => (
+                  <div key={partner.id || idx} className="w-32 h-20 md:w-40 md:h-24 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    {partner.logo
+                      ? <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain p-2" />
+                      : <span className="text-sm font-semibold text-gray-500 uppercase tracking-widest px-2 text-center">{partner.name || 'Partner'}</span>
+                    }
+                  </div>
+                ))
+              : [1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="w-32 h-20 md:w-40 md:h-24 bg-gray-200/60 rounded-xl flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+                    <span className="text-sm font-semibold text-gray-500 uppercase tracking-widest">Partner Logo</span>
+                  </div>
+                ))
+            }
           </div>
         </div>
       </section>
@@ -373,36 +443,11 @@ export default function App() {
               </button>
             </div>
 
+            {/* Dynamic image slider replaces static stats */}
             <div className="w-full lg:w-1/2">
-              <div className="bg-[#15271d] rounded-2xl p-8 border border-white/10 shadow-2xl relative">
-                <div className="absolute -top-4 -right-4 bg-accent text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">BETA</div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-6 mb-6">
-                  <div>
-                    <div className="text-sm text-gray-400 mb-1">Total Revenue</div>
-                    <div className="text-3xl font-heading font-bold">₹42,500</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-400 mb-1">Active Bookings</div>
-                    <div className="text-3xl font-heading font-bold text-right">18</div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl">
-                      <div className="flex gap-4 items-center">
-                        <div className="w-12 h-12 bg-white/10 rounded-lg"></div>
-                        <div>
-                          <div className="font-semibold">Red Bridal Lehenga</div>
-                          <div className="text-xs text-gray-400">Size: M • Rented</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">₹3,000</div>
-                        <div className="text-xs text-green-400">Due in 2 days</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="bg-[#15271d] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
+                <div className="absolute -top-4 -right-4 z-10 bg-accent text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">BETA</div>
+                <StoreOwnerSlider slides={content.storeOwnerSlides?.items || []} />
               </div>
             </div>
           </div>
@@ -418,16 +463,14 @@ export default function App() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { name: "Priya Sharma", role: "Regular Renter, Indore", text: "Rented a designer lehenga for a wedding — the process was seamless and saved a lot of money.", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
-              { name: "Rahul Verma", role: "Lender & Renter", text: "Earns extra income listing clothes, reduces waste, loves the community.", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
-              { name: "Ananya Patel", role: "Fashion Enthusiast", text: "Can wear designer occasion wear affordably without contributing to fast fashion.", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" }
-            ].map((testimonial, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-2xl shadow-sm relative">
+            {(content.testimonials.items || []).map((testimonial, idx) => (
+              <div key={testimonial.id || idx} className="bg-white p-8 rounded-2xl shadow-sm relative">
                 <div className="absolute top-6 right-8 text-6xl font-heading text-primary/10 leading-none">"</div>
                 <p className="text-gray-700 text-lg leading-relaxed mb-8 relative z-10">"{testimonial.text}"</p>
                 <div className="flex items-center gap-4">
-                  <img src={testimonial.img} alt={testimonial.name} className="w-14 h-14 rounded-full object-cover" />
+                  {testimonial.img && (
+                    <img src={testimonial.img} alt={testimonial.name} className="w-14 h-14 rounded-full object-cover" />
+                  )}
                   <div>
                     <h4 className="font-heading font-bold text-primary">{testimonial.name}</h4>
                     <p className="text-sm text-gray-500">{testimonial.role}</p>
@@ -511,10 +554,10 @@ export default function App() {
               © 2025 AMKA JHAMKA PRIVATE LIMITED. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <a href="https://www.instagram.com/fashcycle.official?igsh=NXhpYjRkZGw3Y21v&utm_source=qr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><InstagramIcon /></a>
-              <a href="https://www.facebook.com/profile.php?id=61577640128490&sk=about" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><FacebookIcon /></a>
-              <a href="https://x.com/fashcycle19878" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><TwitterIcon /></a>
-              <a href="https://www.youtube.com/@fashcycle" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><YoutubeIcon /></a>
+              <a href={content.contact.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><InstagramIcon /></a>
+              <a href={content.contact.facebook}  target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><FacebookIcon /></a>
+              <a href={content.contact.twitter}   target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><TwitterIcon /></a>
+              <a href={content.contact.youtube}   target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><YoutubeIcon /></a>
             </div>
           </div>
         </div>
@@ -561,7 +604,7 @@ export default function App() {
               </button>
             </div>
             <div className="space-y-4 mb-8">
-              <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-colors group">
+              <a href={`https://wa.me/${content.contact.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-colors group">
                 <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shrink-0">
                   <MessageSquare size={22} className="text-white" />
                 </div>
@@ -570,16 +613,16 @@ export default function App() {
                   <p className="text-sm text-gray-500">Chat with us on WhatsApp</p>
                 </div>
               </a>
-              <a href="mailto:hello@fashcycle.com" className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors group">
+              <a href={`mailto:${content.contact.email}`} className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors group">
                 <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800 group-hover:text-primary">Email</h3>
-                  <p className="text-sm text-gray-500">hello@fashcycle.com</p>
+                  <p className="text-sm text-gray-500">{content.contact.email}</p>
                 </div>
               </a>
-              <a href="https://www.instagram.com/fashcycle.official" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors group">
+              <a href={content.contact.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors group">
                 <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shrink-0 text-white">
                   <InstagramIcon />
                 </div>
