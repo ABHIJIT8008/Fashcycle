@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useContent, DEFAULT_CONTENT } from '../../contexts/ContentContext';
 import {
   Image as ImageIcon, LayoutDashboard, Users, Store, BarChart3,
-  Phone, LogOut, ChevronRight, ChevronLeft, Plus,
+  Phone, LogOut, ChevronRight, ChevronLeft, Plus, ClipboardList,
   Trash2, Upload, Check, Loader2, Link as LinkIcon
 } from 'lucide-react';
 
@@ -450,6 +450,69 @@ function ContactEditor({ data, onSave }) {
 /* ══════════════════════════════════════
    ADMIN PANEL SHELL
 ══════════════════════════════════════ */
+function StoreApplicationsEditor({ data, onSave }) {
+  const items = data?.items || [];
+
+  async function removeItem(id) {
+    await onSave({ items: items.filter(item => item.id !== id) });
+  }
+
+  async function clearAll() {
+    await onSave({ items: [] });
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">Store Listing Requests</h2>
+          <p className="text-sm text-gray-500 mt-1">Submissions from the "List Your Store" form on the website.</p>
+        </div>
+        {items.length > 0 && (
+          <button onClick={clearAll} className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors">
+            Clear All
+          </button>
+        )}
+      </div>
+
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+          <ClipboardList size={28} className="mx-auto mb-2 opacity-40" />
+          <p className="text-sm">No store requests yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map(item => (
+            <div key={item.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="font-semibold text-gray-800 text-lg">{item.storeName || 'Unnamed Store'}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">Submitted: {item.submittedAt ? new Date(item.submittedAt).toLocaleString() : 'N/A'}</p>
+                </div>
+                <button onClick={() => removeItem(item.id)} className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <p><span className="font-semibold text-gray-700">Owner:</span> {item.ownerName || '-'}</p>
+                <p><span className="font-semibold text-gray-700">Phone:</span> {item.phone || '-'}</p>
+                <p><span className="font-semibold text-gray-700">Email:</span> {item.email || '-'}</p>
+                <p><span className="font-semibold text-gray-700">City:</span> {item.city || '-'}</p>
+                <p className="md:col-span-2"><span className="font-semibold text-gray-700">Address:</span> {item.address || '-'}</p>
+                <p className="md:col-span-2"><span className="font-semibold text-gray-700">Products:</span> {item.productTypes || '-'}</p>
+                <p><span className="font-semibold text-gray-700">Inventory Size:</span> {item.inventorySize || '-'}</p>
+                <p><span className="font-semibold text-gray-700">Price Range:</span> {item.priceRange || '-'}</p>
+                <p className="md:col-span-2"><span className="font-semibold text-gray-700">Notes:</span> {item.notes || '-'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const TABS = [
   { id: 'hero',              label: 'Hero Image',         icon: <ImageIcon size={17} /> },
   { id: 'howItWorks',        label: 'How It Works',       icon: <LayoutDashboard size={17} /> },
@@ -457,7 +520,8 @@ const TABS = [
   { id: 'partners',          label: 'Partners',           icon: <Store size={17} /> },
   { id: 'storeOwnerSlides',  label: 'Store Owner Slider', icon: <BarChart3 size={17} /> },
   { id: 'testimonials',      label: 'Testimonials',       icon: <Users size={17} /> },
-  { id: 'contact',           label: 'Contact & Socials',  icon: <Phone size={17} /> }
+  { id: 'contact',           label: 'Contact & Socials',  icon: <Phone size={17} /> },
+  { id: 'storeApplications', label: 'Store Leads',        icon: <ClipboardList size={17} /> }
 ];
 
 export default function AdminPanel() {
@@ -483,6 +547,7 @@ export default function AdminPanel() {
       case 'storeOwnerSlides': return <StoreOwnerSlidesEditor data={content.storeOwnerSlides} onSave={save('storeOwnerSlides')} />;
       case 'testimonials':     return <TestimonialsEditor     data={content.testimonials}     onSave={save('testimonials')} />;
       case 'contact':          return <ContactEditor          data={content.contact}          onSave={save('contact')} />;
+      case 'storeApplications':return <StoreApplicationsEditor data={content.storeApplications} onSave={save('storeApplications')} />;
       default:                 return null;
     }
   }

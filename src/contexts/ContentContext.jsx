@@ -34,6 +34,7 @@ export const DEFAULT_CONTENT = {
   },
   partners: { items: [] },
   storeOwnerSlides: { items: [] },
+  storeApplications: { items: [] },
   testimonials: {
     items: [
       { id: "1", name: "Priya Sharma", role: "Regular Renter, Indore",   text: "Rented a designer lehenga for a wedding — the process was seamless and saved a lot of money.", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },

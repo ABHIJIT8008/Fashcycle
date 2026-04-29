@@ -108,7 +108,21 @@ export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const [showContactUs, setShowContactUs] = useState(false);
-  const { content } = useContent();
+  const [showStoreForm, setShowStoreForm] = useState(false);
+  const [submittingStoreForm, setSubmittingStoreForm] = useState(false);
+  const [storeForm, setStoreForm] = useState({
+    ownerName: '',
+    storeName: '',
+    phone: '',
+    email: '',
+    city: '',
+    address: '',
+    productTypes: '',
+    inventorySize: '',
+    priceRange: '',
+    notes: ''
+  });
+  const { content, updateSection } = useContent();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -120,6 +134,33 @@ export default function App() {
     document.getElementById('download-section')?.scrollIntoView({ behavior: 'smooth' });
     setIsMobileMenuOpen(false);
   };
+
+  async function handleStoreFormSubmit(e) {
+    e.preventDefault();
+    setSubmittingStoreForm(true);
+    const submission = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      submittedAt: new Date().toISOString(),
+      ...Object.fromEntries(Object.entries(storeForm).map(([key, value]) => [key, value.trim()]))
+    };
+    const existingItems = content.storeApplications?.items || [];
+    await updateSection('storeApplications', { items: [submission, ...existingItems] });
+    setSubmittingStoreForm(false);
+    setShowStoreForm(false);
+    setStoreForm({
+      ownerName: '',
+      storeName: '',
+      phone: '',
+      email: '',
+      city: '',
+      address: '',
+      productTypes: '',
+      inventorySize: '',
+      priceRange: '',
+      notes: ''
+    });
+    alert('Your store details were submitted successfully. Our team will contact you soon.');
+  }
 
   return (
     <div className="min-h-screen bg-white font-body text-text-dark">
@@ -439,7 +480,10 @@ export default function App() {
                 </div>
               </div>
 
-              <button className="bg-white text-primary px-8 py-4 rounded-lg font-semibold uppercase tracking-wide hover:bg-gray-100 transition-colors w-full sm:w-auto">
+              <button
+                onClick={() => setShowStoreForm(true)}
+                className="bg-white text-primary px-8 py-4 rounded-lg font-semibold uppercase tracking-wide hover:bg-gray-100 transition-colors w-full sm:w-auto"
+              >
                 List Your Store →
               </button>
             </div>
@@ -566,6 +610,47 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* STORE LISTING FORM MODAL */}
+      {showStoreForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => !submittingStoreForm && setShowStoreForm(false)}>
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] overflow-y-auto p-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="font-heading text-3xl font-bold text-primary">List Your Store</h2>
+                <p className="text-sm text-gray-500 mt-1">Tell us about your rental store and products.</p>
+              </div>
+              <button onClick={() => !submittingStoreForm && setShowStoreForm(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <X size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            <form onSubmit={handleStoreFormSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" required value={storeForm.ownerName} onChange={e => setStoreForm(prev => ({ ...prev, ownerName: e.target.value }))} placeholder="Owner Name" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" required value={storeForm.storeName} onChange={e => setStoreForm(prev => ({ ...prev, storeName: e.target.value }))} placeholder="Store Name" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="tel" required value={storeForm.phone} onChange={e => setStoreForm(prev => ({ ...prev, phone: e.target.value }))} placeholder="Phone Number" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="email" required value={storeForm.email} onChange={e => setStoreForm(prev => ({ ...prev, email: e.target.value }))} placeholder="Email Address" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" required value={storeForm.city} onChange={e => setStoreForm(prev => ({ ...prev, city: e.target.value }))} placeholder="City" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" required value={storeForm.address} onChange={e => setStoreForm(prev => ({ ...prev, address: e.target.value }))} placeholder="Store Address" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" required value={storeForm.productTypes} onChange={e => setStoreForm(prev => ({ ...prev, productTypes: e.target.value }))} placeholder="Products You Rent (e.g. Lehenga, Gown)" className="md:col-span-2 w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" value={storeForm.inventorySize} onChange={e => setStoreForm(prev => ({ ...prev, inventorySize: e.target.value }))} placeholder="Approx. Inventory Size (optional)" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                <input type="text" value={storeForm.priceRange} onChange={e => setStoreForm(prev => ({ ...prev, priceRange: e.target.value }))} placeholder="Rental Price Range (optional)" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              </div>
+              <textarea rows={4} value={storeForm.notes} onChange={e => setStoreForm(prev => ({ ...prev, notes: e.target.value }))} placeholder="Anything else you'd like us to know? (optional)" className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" />
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowStoreForm(false)} className="px-5 py-2.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={submittingStoreForm} className="px-5 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-accent transition-colors disabled:opacity-60">
+                  {submittingStoreForm ? 'Submitting...' : 'Submit Details'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* HELP CENTER MODAL */}
       {showHelpCenter && (
