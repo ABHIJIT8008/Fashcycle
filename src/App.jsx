@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Menu, X, CheckCircle2, Search, Calendar, CreditCard, RefreshCcw,
   Package, BarChart3, Leaf, Droplets, RefreshCw, ArrowRight, MapPin,
@@ -553,11 +554,14 @@ export default function App() {
             <p className="text-gray-400 text-sm text-center md:text-left">
               © 2025 AMKA JHAMKA PRIVATE LIMITED. All rights reserved.
             </p>
-            <div className="flex gap-6">
+            <div className="flex items-center gap-6">
               <a href={content.contact.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><InstagramIcon /></a>
               <a href={content.contact.facebook}  target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><FacebookIcon /></a>
               <a href={content.contact.twitter}   target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><TwitterIcon /></a>
               <a href={content.contact.youtube}   target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors"><YoutubeIcon /></a>
+              <Link to="/admin/login" className="text-[10px] uppercase tracking-[0.2em] text-white/20 hover:text-white/45 transition-colors">
+                Admin
+              </Link>
             </div>
           </div>
         </div>
