@@ -6,6 +6,8 @@ import {
   Phone, MessageSquare, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useContent } from './contexts/ContentContext';
+import { db } from './firebase';
+import { collection, doc, setDoc } from 'firebase/firestore';
 
 const InstagramIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>);
 const FacebookIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>);
@@ -138,15 +140,32 @@ export default function App() {
   async function handleStoreFormSubmit(e) {
     e.preventDefault();
     setSubmittingStoreForm(true);
+    
+    const submissionId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const submission = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: submissionId,
       submittedAt: new Date().toISOString(),
       ...Object.fromEntries(Object.entries(storeForm).map(([key, value]) => [key, value.trim()]))
     };
-    const existingItems = content.storeApplications?.items || [];
-    await updateSection('storeApplications', { items: [submission, ...existingItems] });
-    setSubmittingStoreForm(false);
-    setShowStoreForm(false);
+    
+    try {
+      // Write securely to a separate collection
+      const docRef = doc(db, 'storeLeads', submissionId);
+      await setDoc(docRef, submission);
+      
+      setSubmittingStoreForm(false);
+      setShowStoreForm(false);
+      setStoreForm({
+        ownerName: '', storeName: '', phone: '', email: '', city: '',
+        address: '', productTypes: '', inventorySize: '', priceRange: '', notes: ''
+      });
+      alert('Your store details were submitted successfully. Our team will contact you soon.');
+    } catch (err) {
+      console.error("Submission failed: ", err);
+      alert('There was a problem submitting your request. Please try again.');
+      setSubmittingStoreForm(false);
+    }
+  }
     setStoreForm({
       ownerName: '',
       storeName: '',

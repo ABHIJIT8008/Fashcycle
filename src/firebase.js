@@ -6,12 +6,12 @@ import { getStorage } from 'firebase/storage';
 // ⚠️  SETUP REQUIRED: Replace these placeholder values with your Firebase project config.
 // Go to Firebase Console → Project Settings → General → Your apps → Web app → SDK setup
 const firebaseConfig = {
-  apiKey: "AIzaSyBVfEjJhXiV2QM0csTQidWpjkukBZhJONs",
-  authDomain: "fashcycle-f06c8.firebaseapp.com",
-  projectId: "fashcycle-f06c8",
-  storageBucket: "fashcycle-f06c8.firebasestorage.app",
-  messagingSenderId: "613973033052",
-  appId: "1:613973033052:web:8743cbfa4c27cb4cd66699"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

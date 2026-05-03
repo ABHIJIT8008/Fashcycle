@@ -1,15 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useContent, DEFAULT_CONTENT } from '../../contexts/ContentContext';
-// ⚠️ SETUP REQUIRED: Get a free API key from https://api.imgbb.com/
-// It takes 10 seconds, no credit card required. Paste it below:
-const IMGBB_API_KEY = '20c582b5c84b2883d500fd7cf80e1b0b';
+import { db } from '../../firebase';
+import { collection, onSnapshot, doc, deleteDoc, writeBatch } from 'firebase/firestore';
 import {
   Image as ImageIcon, LayoutDashboard, Users, Store, BarChart3,
   Phone, LogOut, ChevronRight, ChevronLeft, Plus, ClipboardList,
   Trash2, Upload, Check, Loader2, Link as LinkIcon
 } from 'lucide-react';
+
+const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
 
 /* ── Image input: file → base64 DataURL, or paste a URL ── */
 function ImageInput({ value, onChange, label }) {
@@ -479,15 +480,52 @@ function ContactEditor({ data, onSave }) {
 /* ══════════════════════════════════════
    ADMIN PANEL SHELL
 ══════════════════════════════════════ */
-function StoreApplicationsEditor({ data, onSave }) {
-  const items = data?.items || [];
+function StoreApplicationsEditor() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const leadsRef = collection(db, 'storeLeads');
+    const unsubscribe = onSnapshot(leadsRef, (snapshot) => {
+      const fetchedItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Sort by submittedAt descending
+      fetchedItems.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+      setItems(fetchedItems);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching leads:", error);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   async function removeItem(id) {
-    await onSave({ items: items.filter(item => item.id !== id) });
+    if (!window.confirm("Are you sure you want to delete this lead?")) return;
+    try {
+      await deleteDoc(doc(db, 'storeLeads', id));
+    } catch (e) {
+      console.error("Error deleting lead", e);
+      alert("Failed to delete lead. Are you logged in as Admin?");
+    }
   }
 
   async function clearAll() {
-    await onSave({ items: [] });
+    if (!window.confirm("Are you sure you want to delete ALL leads? This cannot be undone.")) return;
+    try {
+      const batch = writeBatch(db);
+      items.forEach(item => {
+        batch.delete(doc(db, 'storeLeads', item.id));
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error("Error clearing leads", e);
+      alert("Failed to clear leads.");
+    }
+  }
+
+  if (loading) {
+    return <div className="py-12 flex justify-center text-[#1b3226]"><Loader2 size={32} className="animate-spin" /></div>;
   }
 
   return (
@@ -576,7 +614,7 @@ export default function AdminPanel() {
       case 'storeOwnerSlides': return <StoreOwnerSlidesEditor data={content.storeOwnerSlides} onSave={save('storeOwnerSlides')} />;
       case 'testimonials':     return <TestimonialsEditor     data={content.testimonials}     onSave={save('testimonials')} />;
       case 'contact':          return <ContactEditor          data={content.contact}          onSave={save('contact')} />;
-      case 'storeApplications':return <StoreApplicationsEditor data={content.storeApplications} onSave={save('storeApplications')} />;
+      case 'storeApplications':return <StoreApplicationsEditor />;
       default:                 return null;
     }
   }
