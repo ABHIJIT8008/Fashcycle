@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const ContentContext = createContext(null);
 export const useContent = () => useContext(ContentContext);
@@ -52,37 +54,38 @@ export const DEFAULT_CONTENT = {
   }
 };
 
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_CONTENT;
-    const parsed = JSON.parse(raw);
-    // Deep-merge with defaults so newly added sections always exist
-    return { ...DEFAULT_CONTENT, ...parsed };
-  } catch {
-    return DEFAULT_CONTENT;
-  }
-}
-
 export function ContentProvider({ children }) {
-  const [content, setContent] = useState(loadFromStorage);
+  const [content, setContent] = useState(DEFAULT_CONTENT);
 
-  function updateSection(section, data) {
-    const newContent = { ...content, [section]: data };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newContent));
-    } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        alert(
-          'Storage limit reached.\n\n' +
-          'Too many large base64 images are stored. ' +
-          'Try using image URLs instead of file uploads, or clear some existing images.'
-        );
-        return;
+  useEffect(() => {
+    const docRef = doc(db, 'siteData', 'content');
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setContent({ ...DEFAULT_CONTENT, ...docSnap.data() });
+      } else {
+        setContent(DEFAULT_CONTENT);
       }
-    }
+    }, (error) => {
+      console.error("Error fetching content:", error);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  async function updateSection(section, data) {
+    const newContent = { ...content, [section]: data };
+    
+    // We update local state optimistically
     setContent(newContent);
-    return Promise.resolve();
+    
+    // And push to Firestore
+    try {
+      const docRef = doc(db, 'siteData', 'content');
+      await setDoc(docRef, { [section]: data }, { merge: true });
+    } catch (e) {
+      console.error("Error updating document: ", e);
+      alert("Failed to save changes to the database. Are you logged in as Admin?");
+    }
   }
 
   return (

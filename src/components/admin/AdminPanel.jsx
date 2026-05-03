@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useContent, DEFAULT_CONTENT } from '../../contexts/ContentContext';
+// ⚠️ SETUP REQUIRED: Get a free API key from https://api.imgbb.com/
+// It takes 10 seconds, no credit card required. Paste it below:
+const IMGBB_API_KEY = '20c582b5c84b2883d500fd7cf80e1b0b';
 import {
   Image as ImageIcon, LayoutDashboard, Users, Store, BarChart3,
   Phone, LogOut, ChevronRight, ChevronLeft, Plus, ClipboardList,
@@ -15,15 +18,41 @@ function ImageInput({ value, onChange, label }) {
   const [reading, setReading] = useState(false);
   const fileRef = useRef();
 
-  function handleFile(e) {
+  async function handleFile(e) {
     const file = e.target.files[0];
     if (!file) return;
+    
+    if (IMGBB_API_KEY === 'REPLACE_WITH_YOUR_IMGBB_API_KEY') {
+      alert("Please add your free ImgBB API Key at the top of AdminPanel.jsx first.");
+      e.target.value = '';
+      return;
+    }
+
     setReading(true);
-    const reader = new FileReader();
-    reader.onload = ev => { onChange(ev.target.result); setReading(false); };
-    reader.onerror  = ()  => { alert('Could not read file.'); setReading(false); };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        onChange(data.data.url); // Use the permanent ImgBB URL
+      } else {
+        throw new Error(data.error?.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert('Could not upload image. Check console for details.');
+    } finally {
+      setReading(false);
+      e.target.value = '';
+    }
   }
 
   return (

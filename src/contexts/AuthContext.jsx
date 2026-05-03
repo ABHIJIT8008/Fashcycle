@@ -1,36 +1,33 @@
-import React, { createContext, useContext, useState } from 'react';
-
-// ── Change this to set the admin password ──
-const ADMIN_PASSWORD = 'fashcycle@admin2024';
-const SESSION_KEY = 'fashcycle_admin_session';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem(SESSION_KEY);
-    return saved ? { email: saved } : null;
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
   function login(email, password) {
-    if (password === ADMIN_PASSWORD) {
-      localStorage.setItem(SESSION_KEY, email || 'admin');
-      setCurrentUser({ email: email || 'admin' });
-      return Promise.resolve();
-    }
-    return Promise.reject(new Error('Invalid password'));
+    return signInWithEmailAndPassword(auth, email, password);
   }
 
   function logout() {
-    localStorage.removeItem(SESSION_KEY);
-    setCurrentUser(null);
-    return Promise.resolve();
+    return signOut(auth);
   }
 
   return (
     <AuthContext.Provider value={{ currentUser, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
