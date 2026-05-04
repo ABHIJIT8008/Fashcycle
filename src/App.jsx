@@ -166,20 +166,6 @@ export default function App() {
       setSubmittingStoreForm(false);
     }
   }
-    setStoreForm({
-      ownerName: '',
-      storeName: '',
-      phone: '',
-      email: '',
-      city: '',
-      address: '',
-      productTypes: '',
-      inventorySize: '',
-      priceRange: '',
-      notes: ''
-    });
-    alert('Your store details were submitted successfully. Our team will contact you soon.');
-  }
 
   return (
     <div className="min-h-screen bg-white font-body text-text-dark">
