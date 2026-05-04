@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const ContentContext = createContext(null);
 export const useContent = () => useContext(ContentContext);
 
-const STORAGE_KEY = 'fashcycle_site_content';
+const API_URL = 'http://localhost:5000/api/content';
 
 export const DEFAULT_CONTENT = {
   hero: {
@@ -57,19 +55,20 @@ export const DEFAULT_CONTENT = {
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(DEFAULT_CONTENT);
 
-  useEffect(() => {
-    const docRef = doc(db, 'siteData', 'content');
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setContent({ ...DEFAULT_CONTENT, ...docSnap.data() });
-      } else {
-        setContent(DEFAULT_CONTENT);
+  const fetchContent = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (response.ok) {
+        const result = await response.json();
+        setContent({ ...DEFAULT_CONTENT, ...result.data });
       }
-    }, (error) => {
+    } catch (error) {
       console.error("Error fetching content:", error);
-    });
+    }
+  };
 
-    return unsubscribe;
+  useEffect(() => {
+    fetchContent();
   }, []);
 
   async function updateSection(section, data) {
@@ -78,13 +77,26 @@ export function ContentProvider({ children }) {
     // We update local state optimistically
     setContent(newContent);
     
-    // And push to Firestore
+    // And push to Custom API
     try {
-      const docRef = doc(db, 'siteData', 'content');
-      await setDoc(docRef, { [section]: data }, { merge: true });
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/${section}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save changes');
+      }
     } catch (e) {
-      console.error("Error updating document: ", e);
+      console.error("Error updating section: ", e);
       alert("Failed to save changes to the database. Are you logged in as Admin?");
+      // Rollback optimistic update on failure by re-fetching
+      fetchContent();
     }
   }
 

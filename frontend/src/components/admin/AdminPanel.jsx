@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useContent, DEFAULT_CONTENT } from '../../contexts/ContentContext';
-import { db } from '../../firebase';
-import { collection, onSnapshot, doc, deleteDoc, writeBatch } from 'firebase/firestore';
 import {
   Image as ImageIcon, LayoutDashboard, Users, Store, BarChart3,
   Phone, LogOut, ChevronRight, ChevronLeft, Plus, ClipboardList,
